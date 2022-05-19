@@ -1,11 +1,6 @@
 #ifndef SCF_STRING_H
 #define SCF_STRING_H
 
-#include <stddef.h>
-#include <error.h>
-#include <string.h>
-#include <stdlib.h>
-
 typedef struct SCF_STRING
 {
     int capacity; //容量

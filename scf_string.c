@@ -1,3 +1,4 @@
+#include "scf_def.h"
 #include "scf_string.h"
 
 #define SCF_STRING_CAPACITY_INC 4
