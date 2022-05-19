@@ -1,1 +1,1 @@
-"# SimpleCompileFramework" 
+# SimpleCompileFramework
