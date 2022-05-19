@@ -54,7 +54,7 @@ static inline void scf_list_add_tail(scf_list_t* h, scf_list_t* n)
 
 #define scf_list_next(l)    ((l)->next)
 #define scf_list_prev(l)    ((l)->prev)
-#define scf_list_empty(h)   ((h)-next == (h))
+#define scf_list_empty(h)   ((h)->next == (h))
 
 #define scf_list_clear(h, type, member, type_free)\
     do{\
