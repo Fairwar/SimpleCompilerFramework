@@ -8,7 +8,7 @@ enum scf_lex_words{
     SCF_LED_WORD_PLUS=0,    // +
     SCF_LEX_WORD_MINUS,     // -
     SCF_LEX_WORD_STAR,      // *
-    SCF_LED_WORD_DIV,       // /
+    SCF_LEX_WORD_DIV,       // /
     SCF_LEX_WORD_MOD,       // %
 
     SCF_LEX_WORD_INC,       // ++
