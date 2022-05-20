@@ -203,7 +203,7 @@ int scf_string_cat_cstr(scf_string_t *dst, const char *src)
 }
 int scf_string_cat_cstr_len(scf_string_t *dst, const char *src, int len)
 {
-    if (!dst || !dst->len || !src)
+    if (!dst || !dst->data || !src)
     {
         return ERROR_BAD_ARGUMENTS;
     }
