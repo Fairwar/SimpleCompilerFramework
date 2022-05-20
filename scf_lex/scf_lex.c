@@ -183,13 +183,15 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
             char c1[2][2] = {{'=','\0'},{'<','='}};
             enum scf_lex_words t1[2][2] = { { SCF_LEX_WORD_LE,  SCF_LEX_WORD_LE },
                                             { SCF_LEX_WORD_SHL, SCF_LEX_WORD_SHL_ASSIGN } };
-            return _lex_op3_ll1(lex, pword, c, SCF_LEX_WORD_LT, &c1, &t1, [2,2]);
+            int n[2] = {2, 2};
+            return _lex_op3_ll1(lex, pword, c, SCF_LEX_WORD_LT, &c1, &t1, n);
 
         case '>':
             char c1[2][2] = {{'=','\0'},{'>','='}};
             enum scf_lex_words t1[2][2] = { { SCF_LEX_WORD_GE,  SCF_LEX_WORD_GE },
                                             { SCF_LEX_WORD_SHR, SCF_LEX_WORD_SHR_ASSIGN } };
-            return _lex_op3_ll1(lex, pword, c, SCF_LEX_WORD_LT, &c1, &t1, [2,2]);
+            int n[2]={2, 2};
+            return _lex_op3_ll1(lex, pword, c, SCF_LEX_WORD_LT, &c1, &t1, n);
 
         case '\'':
             return _lex_char(lex, pword, c);
