@@ -139,7 +139,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
         return 0;
     }
 
-    scf_lex_char_t* c= _lex_pop_char(lex);
+    scf_lex_char_t* c = _lex_pop_char(lex);
 
     if(c->c == EOF){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_EOF);
@@ -286,7 +286,7 @@ static scf_lex_char_t* _lex_pop_char(scf_lex_t* lex)
 
     if(!scf_list_empty(&lex->char_list_head)){
         scf_list_t*     l = scf_list_head(&lex->char_list_head);
-        scf_lex_char_t* c = scf_list_data(l, scf_lex_word_t, list);
+        scf_lex_char_t* c = scf_list_data(l, scf_lex_char_t, list);
 
         scf_list_del(&c->list);
         return c;
@@ -357,30 +357,39 @@ static int _lex_plus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
         {
             // 匹配为 "++"，将第三个 '+' 放入 lec->char_list_head
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_INC);
+            w->text = scf_string_cstr("++");
+            *pword = w;
+
             _lex_push_char(lex, c_gap_one); 
         
             // 记录错误，返回错误
             scf_lex_error_t* e =scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
             e->message=scf_string_cstr("error: \'+++\' is not suggest!" );
             scf_list_add_tail(&lex->error_list_head, &e->list);
+            
+            lex->read_pos += 2;
+            c_gap_one = NULL;
             return -1;
         
         }
         else{
-            _lex_push_char(lex, c_gap_one);
 
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_INC);
             w->text = scf_string_cstr("++");
+            *pword = w;
+            
+            _lex_push_char(lex, c_gap_one);
+        
+            lex->read_pos += 2;
+            c_gap_one = NULL;
         }
-
-        lex->read_pos += 2;
-        free(c_gap_one);
-        c_gap_one = NULL;
 
     }
     else if(c_next->c == '='){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_ADD_ASSIGN);
         w->text = scf_string_cstr("+=");
+        *pword = w;
+
 
         lex->read_pos += 2;
         *pword = w;
@@ -404,7 +413,6 @@ static int _lex_minus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
     assert(lex);
     assert(pword);
-    assert(c);
 
     scf_lex_char_t* c_next = _lex_pop_char(lex);
     assert(c_next);
@@ -416,44 +424,53 @@ static int _lex_minus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 
         if(c_gap_one->c == '-')
         {
-            // 匹配为 "++"，将第三个 '+' 放入 lec->char_list_head
+            // 匹配为 "--"，将第三个 '-' 放入 lec->char_list_head
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_DEC);
+            w->text = scf_string_cstr("--");
+            *pword = w;
+
             _lex_push_char(lex, c_gap_one); 
         
             // 记录错误，返回错误
             scf_lex_error_t* e =scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
             e->message=scf_string_cstr("error: \'---\' is not suggest!" );
             scf_list_add_tail(&lex->error_list_head, &e->list);
-            // return -1;
+            
+            lex->read_pos += 2;
+            c_gap_one = NULL;
+            return -1;
         
         }
-        else {
-            _lex_push_char(lex, c_gap_one);
+        else{
 
-            scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_DEC);
+            scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_INC);
             w->text = scf_string_cstr("--");
+            *pword = w;
+            
+            _lex_push_char(lex, c_gap_one);
+        
+            lex->read_pos += 2;
+            c_gap_one = NULL;
         }
-
-        lex->read_pos += 2;
-        free(c_gap_one);
-        c_gap_one = NULL;
 
     }
     else if(c_next->c == '='){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_SUB_ASSIGN);
         w->text = scf_string_cstr("-=");
+        *pword = w;
+
 
         lex->read_pos += 2;
         *pword = w;
-    }
-    else if(c_next == '>'){
+    }    else if(c_next->c == '>'){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_ARROW);
         w->text = scf_string_cstr("->");
+        *pword = w;
+
 
         lex->read_pos += 2;
         *pword = w;
-    }
-    else{
+    }else{
         _lex_push_char(lex, c_next);
 
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_MINUS);
@@ -550,7 +567,7 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
 
 static int _lex_dot(scf_lex_t* t, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-
+    return -1;
 }
 
 static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
@@ -590,12 +607,12 @@ static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
 
 static int _lex_string(scf_lex_t* t, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-
+    return -1;
 }
 
 static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-
+    return -1;
 }
 
 static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
