@@ -94,9 +94,9 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
 
     if('\n' == c->c || '\r' == c->c || '\t' == c->c || ' ' == c->c){
 
-        scf_lex_word_t* w =scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_SPACE);
-        w->text = scf_string_cstr(c->c);
-        *pword =w;
+        //scf_lex_word_t* w =scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_SPACE);
+        //w->text = scf_string_cstr_len(' ');
+        //*pword =w;
 
         if('\n' == c->c){
             lex->read_lines++;
@@ -120,135 +120,138 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
             return _lex_minus(lex, pword, c);
 
         case '*':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words t1[1][1] = {{SCF_LEX_WORD_MUL_ASSIGN}};
-            int n[2] = {1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_STAR, c1,  t1, n);
-
+            {   
+                char c1[1][1] = {{'='}};
+                enum scf_lex_words t1[1][1] = {{SCF_LEX_WORD_MUL_ASSIGN}};
+                int n[2] = {1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_STAR, c1,  t1, n);
+            }
         case '/':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_DIV_ASSIGN}};
-            int n[2] = {1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_DIV, c1,  t1, n);
-
+            {    char c1[1][1] = {{'='}};
+                enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_DIV_ASSIGN}};
+                int n[2] = {1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_DIV, c1,  t1, n);
+            }
         case '%':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_MOD_ASSIGN}};
-            int n[2] = {1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_MOD, c1,  t1, n);
-
+            {    char c1[1][1] = {{'='}};
+                enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_MOD_ASSIGN}};
+                int n[2] = {1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_MOD, c1,  t1, n);
+            }
         case '=':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_EQ}};
-            int n[2] = {1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_ASSIGN, c1,  t1, n);
-
+            {    char c1[1][1] = {{'='}};
+                enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_EQ}};
+                int n[2] = {1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_ASSIGN, c1,  t1, n);
+            }
         case '&':
-            char c1[2][1] = {{'&'},{'='}};
-            enum scf_lex_words* t1[2][1] = {{SCF_LEX_WORD_LOGIC_AND}, {SCF_LEX_WORD_AND_ASSIGN}};
-            int n[2]={2,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_AND, c1, t1,n);
+            {   char c1[2][1] = {{'&'},{'='}};
+                enum scf_lex_words* t1[2][1] = {{SCF_LEX_WORD_LOGIC_AND}, {SCF_LEX_WORD_AND_ASSIGN}};
+                int n[2]={2,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_AND, c1, t1,n);
+            }
 
         case '|':
-            char c1[2][1] = {{'|'},{'='}};
-            enum scf_lex_words t1[2][1] = {{SCF_LEX_WORD_LOGIC_OR}, {SCF_LEX_WORD_OR_ASSIGN}};
-            int n[2] = {2,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_OR, c1, t1,n);
-
+            {    char c1[2][1] = {{'|'},{'='}};
+                enum scf_lex_words t1[2][1] = {{SCF_LEX_WORD_LOGIC_OR}, {SCF_LEX_WORD_OR_ASSIGN}};
+                int n[2] = {2,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_OR, c1, t1,n);
+            }    
         case '!':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_NE}};
-            int n[2]={1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LOGIC_NOT, c1, t1, n);
-
+            {    char c1[1][1] = {{'='}};
+                enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_NE}};
+                int n[2]={1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LOGIC_NOT, c1, t1, n);
+            }    
         case '^':
-            char c1[1][1] = {{'='}};
-            enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_XOR_ASSIGN}};
-            int n[2]={1,1};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_XOR, c1, t1, n);
-
+            {    char c1[1][1] = {{'='}};
+                enum scf_lex_words  t1[1][1] = {{SCF_LEX_WORD_XOR_ASSIGN}};
+                int n[2]={1,1};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_XOR, c1, t1, n);
+            }    
         case '~':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_NOT, c1, t1, n);
-
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_NOT, c1, t1, n);
+            }
         case '(':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LP, c1, t1, n);
-
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LP, c1, t1, n);
+            }    
         case ')':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RP, c1, t1, n);
-
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RP, c1, t1, n);
+            }    
         case '[':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LS, c1, t1, n);
-        
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LS, c1, t1, n);
+            }    
         case ']':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RS, c1, t1, n);
-        
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RS, c1, t1, n);
+            }    
         case '{':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LB, c1, t1, n);
-        
+            {    char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LB, c1, t1, n);
+            }    
         case '}':
-            char c1[1][1] = {{}};
-            enum scf_lex_words  t1[1][1] = {{}};
-            int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RB, c1, t1, n);
-        
+            {
+                char c1[1][1] = {{}};
+                enum scf_lex_words  t1[1][1] = {{}};
+                int n[2]={0,0};
+                return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_RB, c1, t1, n);
+            }
         case ',':
-            char c1[1][1] = {{}};
+            {char c1[1][1] = {{}};
             enum scf_lex_words  t1[1][1] = {{}};
             int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_COMMA, c1, t1, n);
+            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_COMMA, c1, t1, n);}
         
         case ';':
-            char c1[1][1] = {{}};
+            {char c1[1][1] = {{}};
             enum scf_lex_words  t1[1][1] = {{}};
             int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_SEMICOLON, c1, t1, n);
+            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_SEMICOLON, c1, t1, n);}
         
         case ':':
-            char c1[1][1] = {{}};
+            {char c1[1][1] = {{}};
             enum scf_lex_words  t1[1][1] = {{}};
             int n[2]={0,0};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_COLON, c1, t1, n);
+            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_COLON, c1, t1, n);}
         
         case '<':
-            char c1[2][2] = {{'=','\0'},{'<','='}};
+            {char c1[2][2] = {{'=','\0'},{'<','='}};
             enum scf_lex_words t1[2][2] = { { SCF_LEX_WORD_LE,  SCF_LEX_WORD_LE },
                                             { SCF_LEX_WORD_SHL, SCF_LEX_WORD_SHL_ASSIGN } };
             int n[2] = {2, 2};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LT, c1, t1, n);
+            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LT, c1, t1, n);}
 
         case '>':
-            char c1[2][2] = {{'=','\0'},{'>','='}};
+            {char c1[2][2] = {{'=','\0'},{'>','='}};
             enum scf_lex_words t1[2][2] = { { SCF_LEX_WORD_GE,  SCF_LEX_WORD_GE },
                                             { SCF_LEX_WORD_SHR, SCF_LEX_WORD_SHR_ASSIGN } };
             int n[2]={2, 2};
-            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LT, c1, t1, n);
+            return _lex_op_ll1(lex, pword, c, SCF_LEX_WORD_LT, c1, t1, n);}
 
-        case '.':
-            return _lex_dot(lex, pword, c);
+        //case '.':
+            //return _lex_dot(lex, pword, c);
 
         case '\'':
             return _lex_char(lex, pword, c);
 
-        case '\"':
-            return _lex_string(lex, pword, c);
+        //case '\"':
+            //return _lex_string(lex, pword, c);
 
         default:
             break;
@@ -316,6 +319,26 @@ static void _lex_jump_space(scf_lex_t* lex)
     }
 }
 
+static int _find_key_word(const char* text)
+{
+    int i;
+    for(i=0;i<sizeof(key_words)/sizeof(key_words[0]);i++){
+        if(!strcmp(key_words[i].text, text)){
+            return  key_words[i].type;
+        }
+    }
+    return -1;
+}
+
+static int _find_escape_char(const char c){
+    int i;
+    for(i = 0; i < sizeof(escape_chars)/sizeof(escape_chars[0]); i++){
+        if(escape_chars[i].origin == c){
+            return escape_chars[i].escape;
+        }
+    }
+    return c;
+}
 
 static int _lex_plus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
@@ -526,11 +549,6 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
 
 static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-    if(c->c=0){
-        scf_lex_char_t* c_next = _lex_pop_char(lex);
-        
-
-    }
 }
 
 static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){

@@ -1,5 +1,8 @@
-#ifndef SCF_ERROR_H
-#define SCF_ERROR_H
+#ifndef SCF_LEX_ERROR_H
+#define SCF_LEX_ERROR_H
+
+#include"scf_string.h"
+#include"scf_list.h"
 
 typedef struct
 {
