@@ -49,26 +49,26 @@ static scf_lex_escape_char_t escape_chars[] =
 
 scf_lex_op_t ops[]=
 {
-    {'*',SCF_LEX_WORD_STAR,         {{'='}},            {{SCF_LEX_WORD_MUL_ASSIGN}},                            {1,1}},
-    {'/',SCF_LEX_WORD_DIV,          {{'='}},            {{SCF_LEX_WORD_DIV_ASSIGN}},                            {1,1}},
-    {'%',SCF_LEX_WORD_MOD,          {{'='}},            {{SCF_LEX_WORD_MOD_ASSIGN}},                            {1,1}},
-    {'=',SCF_LEX_WORD_STAR,         {{'='}},            {{SCF_LEX_WORD_MUL_ASSIGN}},                            {1,1}},
-    {'&',SCF_LEX_WORD_AND,          {{'&'},{'='}},      {{SCF_LEX_WORD_LOGIC_AND},{SCF_LEX_WORD_AND_ASSIGN}},   {2,2}},
-    {'|',SCF_LEX_WORD_OR,           {{'|'},{'='}},      {{SCF_LEX_WORD_LOGIC_OR},{SCF_LEX_WORD_OR_ASSIGN}},     {2,2}},
-    {'!',SCF_LEX_WORD_LOGIC_NOT,    {{'='}},            {{SCF_LEX_WORD_NE}},                                    {1,1}},
-    {'^',SCF_LEX_WORD_XOR,          {{'='}},            {{SCF_LEX_WORD_XOR_ASSIGN}},                            {1,1}},
-    {'~',SCF_LEX_WORD_NOT,          {{}},               {{}},           {0,0}},
-    {'(',SCF_LEX_WORD_LP,           {{}},               {{}},           {0,0}},
-    {')',SCF_LEX_WORD_RP,           {{}},               {{}},           {0,0}},
-    {'[',SCF_LEX_WORD_LS,           {{}},               {{}},           {0,0}},
-    {']',SCF_LEX_WORD_RS,           {{}},               {{}},           {0,0}},
-    {'{',SCF_LEX_WORD_LB,           {{}},               {{}},           {0,0}},
-    {'}',SCF_LEX_WORD_RB,           {{}},               {{}},           {0,0}},
-    {',',SCF_LEX_WORD_COMMA,        {{}},               {{}},           {0,0}},
-    {';',SCF_LEX_WORD_SEMICOLON,    {{}},               {{}},           {0,0}},
-    {':',SCF_LEX_WORD_COLON,        {{}},               {{}},           {0,0}},
-    {'<',SCF_LEX_WORD_LT,           {{'<','='},{'='}},  {{SCF_LEX_WORD_SHL,SCF_LEX_WORD_SHL_ASSIGN},{SCF_LEX_WORD_LE}}, {2,2}},
-    {'>',SCF_LEX_WORD_RT,           {{'>','='},{'='}},  {{SCF_LEX_WORD_SHR,SCF_LEX_WORD_SHR_ASSIGN},{SCF_LEX_WORD_GE}}, {2,2}}
+    {'*',   SCF_LEX_WORD_STAR,         {{'='}},            {{SCF_LEX_WORD_MUL_ASSIGN}},                                     {1,1}},
+    {'/',   SCF_LEX_WORD_DIV,          {{'='}},            {{SCF_LEX_WORD_DIV_ASSIGN}},                                     {1,1}},
+    {'%',   SCF_LEX_WORD_MOD,          {{'='}},            {{SCF_LEX_WORD_MOD_ASSIGN}},                                     {1,1}},
+    {'=',   SCF_LEX_WORD_STAR,         {{'='}},            {{SCF_LEX_WORD_MUL_ASSIGN}},                                     {1,1}},
+    {'&',   SCF_LEX_WORD_AND,          {{'&'},{'='}},      {{SCF_LEX_WORD_LOGIC_AND},{SCF_LEX_WORD_AND_ASSIGN}},            {2,2}},
+    {'|',   SCF_LEX_WORD_OR,           {{'|'},{'='}},      {{SCF_LEX_WORD_LOGIC_OR},{SCF_LEX_WORD_OR_ASSIGN}},              {2,2}},
+    {'!',   SCF_LEX_WORD_LOGIC_NOT,    {{'='}},            {{SCF_LEX_WORD_NE}},                                             {1,1}},
+    {'^',   SCF_LEX_WORD_XOR,          {{'='}},            {{SCF_LEX_WORD_XOR_ASSIGN}},                                     {1,1}},
+    {'~',   SCF_LEX_WORD_NOT,          {{}},               {{}},                                                            {0,0}},
+    {'(',   SCF_LEX_WORD_LP,           {{}},               {{}},                                                            {0,0}},
+    {')',   SCF_LEX_WORD_RP,           {{}},               {{}},                                                            {0,0}},
+    {'[',   SCF_LEX_WORD_LS,           {{}},               {{}},                                                            {0,0}},
+    {']',   SCF_LEX_WORD_RS,           {{}},               {{}},                                                            {0,0}},
+    {'{',   SCF_LEX_WORD_LB,           {{}},               {{}},                                                            {0,0}},
+    {'}',   SCF_LEX_WORD_RB,           {{}},               {{}},                                                            {0,0}},
+    {',',   SCF_LEX_WORD_COMMA,        {{}},               {{}},                                                            {0,0}},
+    {';',   SCF_LEX_WORD_SEMICOLON,    {{}},               {{}},                                                            {0,0}},
+    {':',   SCF_LEX_WORD_COLON,        {{}},               {{}},                                                            {0,0}},
+    {'<',   SCF_LEX_WORD_LT,           {{'<','='},{'='}},  {{SCF_LEX_WORD_SHL,SCF_LEX_WORD_SHL_ASSIGN},{SCF_LEX_WORD_LE}},  {2,2}},
+    {'>',   SCF_LEX_WORD_RT,           {{'>','='},{'='}},  {{SCF_LEX_WORD_SHR,SCF_LEX_WORD_SHR_ASSIGN},{SCF_LEX_WORD_GE}},  {2,2}}
 };
 
 int scf_lex_open(scf_lex_t** plex, const char* path)
@@ -149,11 +149,11 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
         return 0;
     }
 
-    if(iscntrl(c->c)){
+    if('\n' == c->c || '\r' == c->c || '\t' == c->c || ' ' == c->c){
 
-        //scf_lex_word_t* w =scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_SPACE);
-        //w->text = scf_string_cstr_len(' ');
-        //*pword =w;
+        scf_lex_word_t* w =scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_SPACE);
+        w->text = scf_string_cstr_len(" ",1);
+        *pword =w;
 
         if('\n' == c->c){
             lex->read_lines++;
@@ -167,13 +167,6 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
         _lex_jump_space(lex);
         return scf_lex_pop_word(lex, pword);
     }
-
-    
-
-
-        char c1[2][2];
-        enum scf_lex_words t1[2][2];
-        int n[2];
 
     switch(c->c){
 
@@ -274,8 +267,7 @@ static void _lex_push_char(scf_lex_t* lex, scf_lex_char_t*c)
     assert(c);
 
     scf_list_add_front(&lex->char_list_head, &c->list);
-
-
+    
 }
 
 static scf_lex_char_t* _lex_pop_char(scf_lex_t* lex)
@@ -538,7 +530,7 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
         assert(w);
 
         w->text = scf_string_alloc();
-        scf_string_cat_cstr_len(w->text, (char*)(&c->c), 1);
+        scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
         
         *pword = w;
         lex->read_pos++;
@@ -553,16 +545,16 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
 
 static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
     scf_lex_word_t* w = NULL;
-    scf_string_t* s = scf_string_cstr_len((char*)&c->c,1);
+    scf_string_t* s = scf_string_cstr_len((char*)(&c->c),1);
 
     scf_lex_char_t* c1 =_lex_pop_char(lex);
     if(c1->c == '\\'){
         scf_lex_char_t* c2 = _lex_pop_char(lex);
         scf_lex_char_t* c3 = _lex_pop_char(lex);
         if(c3->c == '\''){
-            scf_string_cat_cstr_len(s,(char*)&c1->c,1);
-            scf_string_cat_cstr_len(s,(char*)&c2->c,1);
-            scf_string_cat_cstr_len(s,(char*)&c3->c,1);
+            scf_string_cat_cstr_len(s,(char*)&(c1->c),1);
+            scf_string_cat_cstr_len(s,(char*)&(c2->c),1);
+            scf_string_cat_cstr_len(s,(char*)&(c3->c),1);
 
             w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_CHAR);
             w->data.c = _find_escape_char(c2->c);
@@ -588,7 +580,7 @@ static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
 
 static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-    scf_string_t* s =scf_string_cstr_len((char*)&c->c, 1);
+    scf_string_t* s =scf_string_cstr_len((char*)(&c->c), 1);
     lex->read_pos++;
 
     free(c);
@@ -598,7 +590,7 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
     while(1){
         scf_lex_char_t* c1 = _lex_pop_char(lex);
         if( isdigit(c1->c) || isalpha(c1->c) || c1->c == '_'){
-            scf_string_cat_cstr_len(s, (char*)&c1->c, 1);
+            scf_string_cat_cstr_len(s, (char*)(&c1->c), 1);
             lex->read_pos++;
             free(c1);
             c1=NULL;

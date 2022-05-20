@@ -12,11 +12,14 @@ int main(){
 
     scf_lex_pop_word(*plex,pword);
     while((*pword)->type!=SCF_LEX_WORD_EOF){
-        if((*pword)->type == SCF_LEX_WORD_ID){
-            printf(" < id , %s >\n",(char*)((*pword)->text->data));
-        }
-        else{
-            printf(" < %s >\n",(char*)((*pword)->text->data));
+        //if((*pword)->type!=SCF_LEX_WORD_SPACE)
+        {
+            if((*pword)->type == SCF_LEX_WORD_ID){
+                printf(" < id , %s >\n",(char*)((*pword)->text->data));
+            }
+            else{
+                printf(" < %s >\n",(char*)((*pword)->text->data));
+            }
         }
         scf_lex_pop_word(*plex,pword);
     }

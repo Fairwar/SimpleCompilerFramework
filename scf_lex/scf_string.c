@@ -69,7 +69,7 @@ scf_string_t *scf_string_clone(scf_string_t *s)
     }
 
     //分配data空间
-    s_ret->data = malloc(SCF_STRING_CAPACITY_INC + 1);
+    s_ret->data = malloc(s_ret->capacity + 1);
     if (!s_ret->data)
     {
         return NULL;
@@ -85,6 +85,7 @@ scf_string_t *scf_string_clone(scf_string_t *s)
 
     return s_ret;
 }
+
 scf_string_t *scf_string_cstr(const char *str)
 {
     if (!str)
@@ -93,6 +94,7 @@ scf_string_t *scf_string_cstr(const char *str)
     }
     return scf_string_cstr_len(str, strlen(str));
 }
+
 scf_string_t *scf_string_cstr_len(const char *str, size_t len)
 {
     if (!str)
