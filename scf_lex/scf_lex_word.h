@@ -5,7 +5,9 @@
 #include "scf_list.h"
 
 enum scf_lex_words{
-    SCF_LEX_WORD_PLUS=0,    // +
+    SCF_LEX_WORD_EOF=0,     // EOF
+    
+    SCF_LEX_WORD_PLUS,      // +
     SCF_LEX_WORD_MINUS,     // -
     SCF_LEX_WORD_STAR,      // *
     SCF_LEX_WORD_DIV,       // /
@@ -64,8 +66,6 @@ enum scf_lex_words{
     SCF_LEX_WORD_COLON,         // :
     SCF_LEX_WORD_SPACE,         // ' '
 
-    SCF_LEX_WORD_EOF,           // EOF
-
     // for branching
     SCF_LEX_WORD_KEY_IF,        // if
     SCF_LEX_WORD_KEY_ELSE,      // else
@@ -106,9 +106,9 @@ enum scf_lex_words{
     SCF_LEX_WORD_KEY_STRUCT,    // struct
 
     // autority
-    SCF_LEX_WORD_KEY_private,   // private
-    SCF_LEX_WORD_KEY_public,    // public
-    SCF_LEX_WORD_KEY_protected, // protected
+    SCF_LEX_WORD_KEY_PRIVATE,   // private
+    SCF_LEX_WORD_KEY_PUBLIC,    // public
+    SCF_LEX_WORD_KEY_PROTECTED, // protected
 
     // exctral declare
     SCF_LEX_WORD_KEY_CONST,     // const
