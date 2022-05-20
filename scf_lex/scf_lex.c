@@ -66,53 +66,6 @@ int scf_lex_push_word(scf_lex_t* lex, scf_lex_word_t* word)
     return 0;
 }
 
-static scf_lex_char_t* scf_lex_pop_char(scf_lex_t* lex)
-{
-    assert(lex);
-    assert(lex->fp);
-
-    if(!scf_list_empty(&lex->char_list_head)){
-        scf_list_t*     l = scf_list_head(&lex->word_list_head);
-        scf_lex_char_t* c = scf_list_data(l, scf_lex_word_t, list);
-
-        scf_list_del(&c->list);
-        return c;
-    }
-
-    scf_lex_char_t* c = malloc(sizeof(scf_lex_char_t));
-    assert(c);
-
-    c->c = tolower(fgetc(lex->fp));
-}
-
-static void scf_lex_push_char(scf_lex_t* lex, scf_lex_char_t*c)
-{
-    assert(lex);
-    assert(c);
-
-    scf_list_add_front(&lex->char_list_head, &c->list);
-}
-
-static void scf_lex_jump_space(scf_lex_t* lex)
-{
-    scf_lex_char_t* c = scf_lex_pop_char(lex);
-
-    if('\n' == c->c || '\r' == c->c || '\t' == c->c || ' ' == c->c){
-        if('\n' == c->c){
-            lex->read_lines++;
-            lex->read_pos = 0;
-        }else{
-            lex->read_pos++;
-        }
-
-        free(c);
-        c = NULL;
-        scf_lex_jump_space(lex);
-    }else{
-        scf_lex_push_char(lex,c);
-    }
-}
-
 int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
 {
     assert(lex);
@@ -128,7 +81,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
         return 0;
     }
 
-    scf_lex_char_t* c= scf_lex_pop_char(lex);
+    scf_lex_char_t* c= _lex_pop_char(lex);
     if(c->c == EOF){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_EOF);
         w->text = scf_string_cstr("eof");
@@ -153,7 +106,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
 
         free(c);
         c = NULL;
-        scf_lex_jump_space(lex);
+        _lex_jump_space(lex);
         return scf_lex_pop_word(lex, pword);
     }
 
@@ -246,7 +199,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
     
     if(isdigit(c->c))
     {
-        return _lex_num(lex, pword, c);
+        return _lex_number(lex, pword, c);
     }
 
     if((c->c == '_')||isalpha(c->c)){
@@ -254,4 +207,51 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
     }
 
     return -1;
+}
+
+static void _lex_push_char(scf_lex_t* lex, scf_lex_char_t*c)
+{
+    assert(lex);
+    assert(c);
+
+    scf_list_add_front(&lex->char_list_head, &c->list);
+}
+
+static scf_lex_char_t* _lex_pop_char(scf_lex_t* lex)
+{
+    assert(lex);
+    assert(lex->fp);
+
+    if(!scf_list_empty(&lex->char_list_head)){
+        scf_list_t*     l = scf_list_head(&lex->word_list_head);
+        scf_lex_char_t* c = scf_list_data(l, scf_lex_word_t, list);
+
+        scf_list_del(&c->list);
+        return c;
+    }
+
+    scf_lex_char_t* c = malloc(sizeof(scf_lex_char_t));
+    assert(c);
+
+    c->c = tolower(fgetc(lex->fp));
+}
+
+static void _lex_jump_space(scf_lex_t* lex)
+{
+    scf_lex_char_t* c = _lex_pop_char(lex);
+
+    if('\n' == c->c || '\r' == c->c || '\t' == c->c || ' ' == c->c){
+        if('\n' == c->c){
+            lex->read_lines++;
+            lex->read_pos = 0;
+        }else{
+            lex->read_pos++;
+        }
+
+        free(c);
+        c = NULL;
+        _lex_jump_space(lex);
+    }else{
+        _lex_push_char(lex,c);
+    }
 }
