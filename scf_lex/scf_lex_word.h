@@ -164,7 +164,7 @@ static inline int scf_lex_word_is_identity(scf_lex_word_t* w)
 
 static inline int scf_lex_word_is_operator(scf_lex_word_t* w)
 {
-    return (w->type >= SCF_LED_WORD_PLUS 
+    return (w->type >= SCF_LEX_WORD_PLUS 
          && w->type <= SCF_LEX_WORD_DOT)
          || w->type == SCF_LEX_WORD_KEY_SIZEOF;
 }
