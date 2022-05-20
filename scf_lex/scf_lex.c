@@ -411,11 +411,14 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
                     
                     if(j==n[1]-1){
                         flag=1;
+                        j++;
+                        break;
                     }
                 }
                 else if(j>0)
                 {
                     flag=1;
+                    break;
                 }
                 else
                 {
@@ -425,19 +428,40 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
             }
             else{
                 flag=1;
+                break;
             }
-
-        }
-        if(flag==1)
-        {
-
-        }else
-        {
 
         }
     }
 
+    scf_lex_word_t* w;
+    if(flag==1)
+    {
+        w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, t1[i][j]);
+        assert(w);
 
+        w->text = scf_string_alloc();
+        for(int k=0;k<j;k++){
+            scf_string_cat_cstr_len(w->text, &c1[i][k],1);
+        }
+
+        *pword = w;
+        lex->read_pos += j+1;
+
+    }
+    else
+    {
+        w = scf_lex_word_alloc(lex->file, lex->read_lines,lex->read_pos, t);
+        assert(w);
+
+        w->text = scf_string_alloc();
+        scf_string_cat_cstr_len(w->text, &c, 1);
+        
+        *pword = w;
+        lex->read_pos++;
+    }
+
+    return 0;
 }
 
 static int              _lex_op1_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t)
