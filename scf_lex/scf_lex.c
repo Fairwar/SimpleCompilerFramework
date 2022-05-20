@@ -82,6 +82,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
     }
 
     scf_lex_char_t* c= _lex_pop_char(lex);
+
     if(c->c == EOF){
         scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos,SCF_LEX_WORD_EOF);
         w->text = scf_string_cstr("eof");
@@ -240,6 +241,7 @@ static scf_lex_char_t* _lex_pop_char(scf_lex_t* lex)
     assert(c);
 
     c->c = tolower(fgetc(lex->fp));
+    return c;
 }
 
 static void _lex_jump_space(scf_lex_t* lex)
@@ -263,19 +265,201 @@ static void _lex_jump_space(scf_lex_t* lex)
 }
 
 
-static int _lex_plus(scf_lex_t * lex, scf_lex_word_t** pword, scf_lex_char_t* c)
+static int _lex_plus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-    
+    assert(lex)
+    assert(pword)
+
+    scf_lex_char_t* c_next = _lex_pop_char(lex);
+    assert(c_next);
+
+    if(c_next->c == '+')
+    {
+        scf_lex_char_t* c_gap_one = _lex_pop_char(lex);
+        assert(c_gap_one)
+
+        if(c_gap_one->c == '+')
+        {
+            // 匹配为 "++"，将第三个 '+' 放入 lec->char_list_head
+            scf_lex_word_t* w = scf_lex_word_alloc(tex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_INC);
+            _lex_push_char(lex, c_gap_one); 
+        
+            // 记录错误，返回错误
+            scf_lex_error_t* e =scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+            e->message=scf_string_cstr("error: \'+++\' is not suggest!" );
+            scf_list_add_tail(&lex->error_list_head, &e->list);
+            // return -1;
+        
+        }
+        else{
+            _lex_push_char(lex, c_gap_one);
+
+            scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_INC);
+            w->text = scf_string_cstr("++");
+        }
+
+        lex->read_pos += 2;
+        free(c_gap_one);
+        c_gap_one = NULL:
+
+    }
+    else if(c_next->c == '='){
+        scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_ADD_ASSIGN);
+        w->text = scf_string_cstr("+=");
+
+        lex->read_pos += 2;
+        *pword = w;
+    }else{
+        _lex_push_char(lex, c_next);
+
+        scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_PLUS);
+        w->text = scf_string_cstr("+");
+
+        lex->read_pos++   
+        *pword = w;
+    }
+    free(c_next)
+    free(c)
+    c_next = NULL;
+    c = NULL;
+    return 0;
 }
-static int              _lex_minus(scf_lex_t * lex, scf_lex_word_t** pword, scf_lex_char_t* c)
+
+static int _lex_minus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
+    assert(lex)
+    assert(pword)
+    assert(c)
+
+    scf_lex_char_t* c_next = _lex_pop_char(lex);
+    assert(c_next);
+
+    if(c_next->c == '-')
+    {
+        scf_lex_char_t* c_gap_one = _lex_pop_char(lex);
+        assert(c_gap_one)
+
+        if(c_gap_one->c == '-')
+        {
+            // 匹配为 "++"，将第三个 '+' 放入 lec->char_list_head
+            scf_lex_word_t* w = scf_lex_word_alloc(tex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_DEC);
+            _lex_push_char(lex, c_gap_one); 
+        
+            // 记录错误，返回错误
+            scf_lex_error_t* e =scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+            e->message=scf_string_cstr("error: \'---\' is not suggest!" );
+            scf_list_add_tail(&lex->error_list_head, &e->list);
+            // return -1;
+        
+        }
+        else{
+            _lex_push_char(lex, c_gap_one);
+
+            scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_DEC);
+            w->text = scf_string_cstr("--");
+        }
+
+        lex->read_pos += 2;
+        free(c_gap_one);
+        c_gap_one = NULL:
+
+    }
+    else if(c_next->c == '='){
+        scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_SUB_ASSIGN);
+        w->text = scf_string_cstr("-=");
+
+        lex->read_pos += 2;
+        *pword = w;
+    }else{
+        _lex_push_char(lex, c_next);
+
+        scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_MINUS);
+        w->text = scf_string_cstr("-");
+
+        lex->read_pos++   
+        *pword = w;
+    }
+    free(c_next)
+    free(c)
+    c_next = NULL;
+    c = NULL;
+    return 0;
+}
+
+static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c,
+                 enum scf_lex_words t, char** c1, enum scf_lex_words** t1, int* n)
+{
+    assert(lex)
+    assert(pword)
+    assert(c)
+    assert(c1)
+    assert(t1)
+    assert(n)
+
+    int i=0,j=0,flag=0;
+
+    for(i=0; i<n[0] && !flag; i++){
+        for(j=0; j<n[1] && !flag; j++){
+            if(c1[i][j]!='\0')
+            {
+                scf_lex_char_t* c_next = _lex_pop_char(lex);
+                assert(c_next);
+
+                if(c1[i][j]==c_next->c){
+                    free(c_next);
+                    c_next = NULL;
+                    
+                    if(j==n[1]-1){
+                        flag=1;
+                    }
+                }
+                else if(j>0)
+                {
+                    flag=1;
+                }
+                else
+                {
+                    _lex_push_char(lex, c_next);
+                    break;
+                }
+            }
+            else{
+                flag=1;
+            }
+
+        }
+        if(flag==1)
+        {
+
+        }else
+        {
+
+        }
+    }
+
 
 }
-static int              _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t, char** c1, enum scf_lex_words** t1, int* n){
 
-}
 static int              _lex_op1_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t);
+{
+
+}
+
 static int              _lex_op2_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t, char* c1, enum scf_lex_words* t1, int n);
+{
+}
+
+
 static int              _lex_op3_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t, char** c1, enum scf_lex_words** t1, int* n);
+{
+
+}
+
 static int              _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c);
+{
+
+}
+
 static int              _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c);
+{
+}
