@@ -129,6 +129,7 @@ enum scf_lex_words{
 
     // important key value
     SCF_LEX_WORD_KEY_NULLPTR,   // nullptr
+    SCF_LEX_WORD_KEY_QUESTION,  // ?
 
     // identity, start of a-z, A-Z, may include 0-9, _
     SCF_LEX_WORD_ID,

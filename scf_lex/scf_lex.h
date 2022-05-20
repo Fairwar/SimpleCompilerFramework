@@ -60,8 +60,10 @@ static void             _lex_jump_space(scf_lex_t* lex);
 static int              _lex_plus(scf_lex_t * lex, scf_lex_word_t** pword, scf_lex_char_t* c);
 static int              _lex_minus(scf_lex_t * lex, scf_lex_word_t** pword, scf_lex_char_t* c);
 static int              _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c, enum scf_lex_words t, char c1[2][2],enum scf_lex_words t1[2][2], int n[2]);
-static int              _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c);
+static int              _lex_dot(scf_lex_t* t, scf_lex_word_t** pword, scf_lex_char_t* c);
 static int              _lex_char(scf_lex_t *lex, scf_lex_word_t **pword, scf_lex_char_t *c);
+static int              _lex_string(scf_lex_t* t, scf_lex_word_t** pword, scf_lex_char_t* c);
+static int              _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c);
 static int              _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c);
 
 #endif
