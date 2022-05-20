@@ -5,7 +5,7 @@
 #include "scf_list.h"
 
 enum scf_lex_words{
-    SCF_LED_WORD_PLUS=0,    // +
+    SCF_LEX_WORD_PLUS=0,    // +
     SCF_LEX_WORD_MINUS,     // -
     SCF_LEX_WORD_STAR,      // *
     SCF_LEX_WORD_DIV,       // /
