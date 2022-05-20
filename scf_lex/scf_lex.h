@@ -33,9 +33,6 @@ typedef struct
     int         read_pos;
 }scf_lex_t;
 
-scf_lex_error_t*    scf_lex_error_alloc(scf_string_t*file, int line, int pos);
-void                scf_lex_error_free(scf_lex_error_t* e);
-
 int scf_lex_open(scf_lex_t** plex, const char* path);
 int scf_lex_close(scf_lex_t* lex);
 

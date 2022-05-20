@@ -24,7 +24,7 @@ enum scf_lex_words{
 
     SCF_LEX_WORD_LOGIC_AND,     // &&
     SCF_LEX_WORD_LOGIC_OR,      // ||
-    SCF_LEX_WORD_LOGIC_NOT,     //!
+    SCF_LEX_WORD_LOGIC_NOT,     // !
 
     SCF_LEX_WORD_ASSIGN,        // =
     SCF_LEX_WORD_ADD_ASSIGN,    // +=
