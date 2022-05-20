@@ -16,6 +16,7 @@ scf_lex_word_t* scf_lex_word_alloc(scf_string_t* file, int line, int pos, enum s
 
     return w;
 }
+
 scf_lex_word_t* scf_lex_word_clone(scf_lex_word_t* w)
 {
     scf_lex_word_t* w1=calloc(1,sizeof(scf_lex_word_t));
@@ -55,6 +56,7 @@ scf_lex_word_t* scf_lex_word_clone(scf_lex_word_t* w)
     
     return w1;
 }
+
 void scf_lex_word_free(scf_lex_word_t* w)
 {
     assert(w);

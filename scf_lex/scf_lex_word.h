@@ -157,32 +157,32 @@ typedef struct
 
 }scf_lex_word_t;
 
-static inline int scf_lex_is_identity(scf_lex_word_t* w)
+static inline int scf_lex_word_is_identity(scf_lex_word_t* w)
 {
     return w->type >= SCF_LEX_WORD_ID;
 }
 
-static inline int scf_lex_is_operator(scf_lex_word_t* w)
+static inline int scf_lex_word_is_operator(scf_lex_word_t* w)
 {
     return (w->type >= SCF_LED_WORD_PLUS 
-        && w->type <= SCF_LEX_WORD_DOT)
-        || SCF_LEX_WORD_KEY_SIZEOF == w->type;
+         && w->type <= SCF_LEX_WORD_DOT)
+         || w->type == SCF_LEX_WORD_KEY_SIZEOF;
 }
 
-static inline int scf_lex_is_const(scf_lex_word_t* w)
+static inline int scf_lex_word_is_const(scf_lex_word_t* w)
 {
-    return SCF_LEX_WORD_CONST_CHAR <= w->type
-        && w->type >= SCF_LEX_WORD_CONST_BOOL;
+    return w->type >= SCF_LEX_WORD_CONST_CHAR
+        && w->type <= SCF_LEX_WORD_CONST_BOOL;
 }
 
-static inline int scf_lex_is_basic_type(scf_lex_word_t* w)
+static inline int scf_lex_word_is_basic_type(scf_lex_word_t* w)
 {
-    return SCF_LEX_WORD_KEY_CHAR <= w->type
-        && w->type >= SCF_LEX_WORD_KEY_BOOL;
+    return w->type >= SCF_LEX_WORD_KEY_CHAR
+        && w->type <= SCF_LEX_WORD_KEY_BOOL;
 }
 
 scf_lex_word_t* scf_lex_word_alloc(scf_string_t* file, int line, int pos, enum scf_lex_words type);
 scf_lex_word_t* scf_lex_word_clone(scf_lex_word_t* w);
-void scf_lex_word_free(scf_lex_word_t* w);
+void            scf_lex_word_free(scf_lex_word_t* w);
 
 #endif

@@ -2,6 +2,8 @@
 #define SCF_LEX_H
 
 #include "scf_lex_word.h"
+#include "scf_lex_char.h"
+#include "scf_lex_error.h"
 
 typedef struct
 {
@@ -14,21 +16,6 @@ typedef struct
     char    origin;
     char    escape;
 }scf_lex_escape_char_t;
-
-typedef struct
-{
-    scf_list_t      list;
-    scf_string_t*   message;
-    scf_string_t*   file;
-    int             line;
-    int             pos;
-}scf_lex_error_t;
-
-typedef struct
-{
-    scf_list_t  list;
-    char        c;
-}scf_lex_char_t;
 
 typedef struct
 {
