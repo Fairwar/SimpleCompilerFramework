@@ -590,7 +590,9 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
 {
     scf_string_t* s =scf_string_cstr_len((char*)&c->c, 1);
     lex->read_pos++;
+
     free(c);
+    
     c=NULL;
 
     while(1){

@@ -188,8 +188,8 @@ int scf_string_cat(scf_string_t *dst, const scf_string_t *src)
         dst->capacity = dst->len + src->len + SCF_STRING_CAPACITY_INC;
     }
     memcpy(dst->data+dst->len, src->data, src->len);
-    dst->data[dst->len] = '\0';
     dst->len += src->len;
+    dst->data[dst->len] = '\0';
     return 0;
 }
 int scf_string_cat_cstr(scf_string_t *dst, const char *src)

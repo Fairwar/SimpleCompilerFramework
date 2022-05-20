@@ -12,8 +12,9 @@ int main(){
 
     scf_lex_pop_word(*plex,pword);
     while((*pword)->type!=SCF_LEX_WORD_EOF){
-        printf("<%s>",(*pword)->text);
+        printf("< %s >",(char*)((*pword)->text->data));
         system("pause");
+        scf_lex_pop_word(*plex,pword);
     }
     scf_lex_close(*plex);
     return 0;
