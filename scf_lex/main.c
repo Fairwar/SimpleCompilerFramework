@@ -13,6 +13,7 @@ int main(){
     scf_lex_pop_word(*plex,pword);
     while((*pword)->type!=SCF_LEX_WORD_EOF){
         printf("<%s>",(*pword)->text);
+        system("pause");
     }
     scf_lex_close(*plex);
     return 0;
