@@ -627,7 +627,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         assert(w);
         w->text = scf_string_cstr_len(((char*)&(c->c)), 1);
         
-        free(c)
+        free(c);
         c = NULL;
 
         c = _lex_pop_char(lex);
@@ -635,10 +635,10 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             //整数部分
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
-            free(c)
+            free(c);
             c = NULL;
             c = _lex_pop_char(lex);
-            assert(c_next);
+            assert(c);
         }
 
         if(c->c == '.'){
@@ -646,18 +646,18 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             w->type = SCF_LEX_WORD_KEY_FLOAT;
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
-            free(c)
+            free(c);
             c = NULL;
             c = _lex_pop_char(lex);
-            assert(c_next);
+            assert(c);
 
             while(isdigit(c->c)){
                 scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
-                free(c)
+                free(c);
                 c = NULL;
                 c = _lex_pop_char(lex);
-                assert(c_next);
+                assert(c);
             }
         }    
 
@@ -665,18 +665,18 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             //指数部分
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
-            free(c)
+            free(c);
             c = NULL;
             c = _lex_pop_char(lex);
-            assert(c_next);
+            assert(c);
 
             while(isdigit(c->c)){
                 scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
-                free(c)
+                free(c);
                 c = NULL;
                 c = _lex_pop_char(lex);
-                assert(c_next);
+                assert(c);
             }
 
         }
@@ -777,9 +777,9 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             c_next = _lex_pop_char(lex);
             assert(c_next);
             
-            if(c_next >= '0' && c_next =< '7'){
+            if(c_next >= '0' && c_next <= '7'){
 
-                while( c_next >= '0' && c_next =< '7' ){
+                while( c_next >= '0' && c_next <= '7' ){
                     scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
 
                     free(c_next);
