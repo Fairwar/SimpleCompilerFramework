@@ -615,19 +615,90 @@ static int _lex_string(scf_lex_t* t, scf_lex_word_t** pword, scf_lex_char_t* c)
 
 static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
-    assert(lex)
-    assert(pword)
-    assert(c)
+    assert(lex);
+    assert(pword);
+    assert(c);
 
-
+    //首字符检查
     if( c->c  != '0' ){
         // 10 进制
-        
 
-    }else{
+        scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_INT);
+        assert(w);
+        w->text = scf_string_cstr_len(((char*)&(c->c)), 1);
+        
+        free(c)
+        c = NULL;
+
+        c = _lex_pop_char(lex);
+        while(isdigit(c->c)){
+            //整数部分
+            scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
+
+            free(c)
+            c = NULL;
+            c = _lex_pop_char(lex);
+            assert(c_next);
+        }
+
+        if(c->c == '.'){
+            //小数部分
+            w->type = SCF_LEX_WORD_KEY_FLOAT;
+            scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
+
+            free(c)
+            c = NULL;
+            c = _lex_pop_char(lex);
+            assert(c_next);
+
+            while(isdigit(c->c)){
+                scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
+
+                free(c)
+                c = NULL;
+                c = _lex_pop_char(lex);
+                assert(c_next);
+            }
+        }    
+
+        if(c->c == 'e'){
+            //指数部分
+            scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
+
+            free(c)
+            c = NULL;
+            c = _lex_pop_char(lex);
+            assert(c_next);
+
+            while(isdigit(c->c)){
+                scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
+
+                free(c)
+                c = NULL;
+                c = _lex_pop_char(lex);
+                assert(c_next);
+            }
+
+        }
+
+        //溢出检查
+        if(_is_overflow(w,10)){
+            //未溢出
+        }
+        else{
+            //溢出
+
+        }
+    } else {
+        // 首字符为 0
+
+        free(c);
+        c = NULL;
+
         scf_lex_char_t* c_next = _lex_pop_char(lex);
         assert(c_next);
 
+        // 第二字符检测
         if( c_next->c == 'x' ){
             //16 进制
 
@@ -642,52 +713,60 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             c_next = _lex_pop_char(lex);
             assert(c_next);
             
-            while( isxdigit(c_next->c) ){
-                scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
-                flag++;
+            if(isxdigit(c_next)){
 
-                free(c_next);
-                c_next = NULL;
-                c_next = _lex_pop_char(lex);
-                assert(c_next);
-            }
+                while( isxdigit(c_next->c) ){
+                    scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
 
-            if( flag && !isalpha(c_next->c) ){
-                // 符合16进制数要求
-                _lex_push_char(lex,c_next);
-                c_next = NULL;
-                
-                // 越界检查
-                if(!_is_int_overflow(w1->text,16)){
-                    //没越界
-                    lex->read_pos += (flag+2);
-                    *pword = w;
-                    return 0;
-                } else {
-                    //越界
-                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                    e->message = scf_string_cstr("int overflow!");
-                    scf_list_add_tail(&lex->error_list_head, &e->list);
+                    free(c_next);
+                    c_next = NULL;
+                    c_next = _lex_pop_char(lex);
+                    assert(c_next);
+                }
+
+                if( !isalpha(c_next->c) && (c_next !='$') ){
+                    // 符合16进制数要求
+                    _lex_push_char(lex,c_next);
+                    c_next = NULL;
                     
-                    *pword = w;
-                    lex->read_pos += (flag+2);
+                    // 越界检查
+                    if(!_is_overflow(w,16)){
+                        //没越界
+                        lex->read_pos += (w->text->len);
+                        *pword = w;
+                        return 0;
+                    } else {
+                        //越界
+                        scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                        e->message = scf_string_cstr("int overflow!");
+                        scf_list_add_tail(&lex->error_list_head, &e->list);
+                        
+                        *pword = w;
+                        lex->read_pos += (w->text->len);
+                        return -1;
+                    }
+                } else {
+                    // 后缀出现 非16进制 符号
+                    _is_overflow(w,16);
+                    *pword = w;     //返回合法部分
+
+                    lex->read_pos += (w->text->len);
+                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                    e->message = scf_string_cstr("invalid hex: need a \' \' !");
+                    scf_list_add_tail(&lex->error_list_head, &e->list);
                     return -1;
                 }
-            }
-            else {
-                // 非法数（出现非16进制字母）
+            } else {
+                lex->read_pos += (w->text->len);
                 scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                e->message = scf_string_cstr("invalid hex digit!");
-                scf_list_add_tail(&lex->error_list_head, &e->list);
-                    
-                *pword = w;
-                lex->read_pos += (flag+2);    
+                e->message = scf_string_cstr("invalid hex: hex number include only 0~9 and a~f"); 
                 return -1;
             }
 
 
-        }else if(c_next->c >= '0' && c_next->c <= '7'){
-            // 8 进制
+        } else if( c_next->c >= '0' && c_next->c <= '7' ){
+            //8 进制
+
             free(c_next->c);
             c_next = NULL;
 
@@ -695,67 +774,73 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             assert(w);
             w->text = scf_string_cstr("0");
 
-            int flag = 0;
             c_next = _lex_pop_char(lex);
             assert(c_next);
             
-            while( (c_next->c)>= '0' && (c_next->c) <= '7' ){
-                scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
-                flag++;
+            if(c_next >= '0' && c_next =< '7'){
 
-                free(c_next);
-                c_next = NULL;
-                c_next = _lex_pop_char(lex);
-                assert(c_next);
-            }
+                while( c_next >= '0' && c_next =< '7' ){
+                    scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
 
-            if( flag && !isalpha(c_next->c) && !isdigit(c_next) ){
-                // 符合8进制数要求
-                _lex_push_char(lex,c_next);
-                c_next = NULL;
-                
-                // 越界检查
-                if(!_is_int_overflow(w1->text,8)){
-                    //没越界
-                    lex->read_pos += (flag+1);
-                    *pword = w;
-                    return 0;
-                } else {
-                    //越界
-                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                    e->message = scf_string_cstr("int overflow!");
-                    scf_list_add_tail(&lex->error_list_head, &e->list);
+                    free(c_next);
+                    c_next = NULL;
+                    c_next = _lex_pop_char(lex);
+                    assert(c_next);
+                }
+
+                if( !isalpha(c_next->c) && !(c_next !='$') 
+                 && c_next->c!='8' && c_next != '9' ){
+                    // 符合8进制数要求
+                    _lex_push_char(lex,c_next);
+                    c_next = NULL;
                     
-                    *pword = w;
-                    lex->read_pos += (flag+1);
+                    // 越界检查
+                    if(!_is_overflow(w,8)){
+                        //没越界
+                        lex->read_pos += (w->text->len);
+                        *pword = w;
+                        return 0;
+                    } else {
+                        //越界
+                        scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                        e->message = scf_string_cstr("int overflow!");
+                        scf_list_add_tail(&lex->error_list_head, &e->list);
+                        
+                        *pword = w;
+                        lex->read_pos += (w->text->len);
+                        return -1;
+                    }
+                } else {
+                    // 后缀出现 非8进制 符号
+                    _is_overflow(w,8);
+                    *pword = w;     //返回合法部分
+
+                    lex->read_pos += (w->text->len);
+                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                    e->message = scf_string_cstr("invalid hex: need a \' \' !");
+                    scf_list_add_tail(&lex->error_list_head, &e->list);
                     return -1;
                 }
+            } else {
+                    lex->read_pos += (w->text->len);
+                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                    e->message = scf_string_cstr("invalid hex: hex number include only 0~9 and a~f"); 
+                    return -1;
             }
-            else {
-                // 非法数（出现非8进制字母&数字）
-                scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                e->message = scf_string_cstr("invalid octal number!");
-                scf_list_add_tail(&lex->error_list_head, &e->list);
-                    
-                *pword = w;
-                lex->read_pos += (flag+1);    
-                return -1;
-            }
-
-        } else{
-            // 非法数
-            scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-            e->message = scf_string_cstr("invalid number!");
-            scf_list_add_tail(&lex->error_list_head, &e->list);
-
-            *pword = w;
-            lex->read_pos += (flag+2);
-            return -1;
         }
     }
-    
-    return -1;
+/*  else {
+        // 非法数
+        scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+        e->message = scf_string_cstr("invalid number!");
+        scf_list_add_tail(&lex->error_list_head, &e->list);
+
+        *pword = w;
+        lex->read_pos += (flag+2);
+        return -1;
+    } */    
 }
+
 
 static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
