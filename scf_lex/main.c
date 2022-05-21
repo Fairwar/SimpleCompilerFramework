@@ -31,6 +31,7 @@ int main(){
             else{
                 printf(" < %s >\n",(char*)((*pword)->text->data));
             }
+            scf_lex_word_free(*pword);
         }
         f = scf_lex_pop_word(*plex,pword);
     }
