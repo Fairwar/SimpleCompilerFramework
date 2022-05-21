@@ -76,6 +76,7 @@ enum scf_lex_words{
     // for recycling
     SCF_LEX_WORD_KEY_FOR,       // for
     SCF_LEX_WORD_KEY_IN,        // in
+    SCF_LEX_WORD_KEY_TO,        // ..
     SCF_LEX_WORD_KEY_WHILE,     // while
     SCF_LEX_WORD_KEY_BREAK,     // break
     SCF_LEX_WORD_KEY_CONTINUE,  // continue
