@@ -402,7 +402,7 @@ static int _lex_plus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
         lex->read_pos++;
         *pword = w;
     }
-    free(c_next);
+
     free(c);
     c_next = NULL;
     c = NULL;
@@ -451,6 +451,8 @@ static int _lex_minus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
         
             lex->read_pos += 2;
             c_gap_one = NULL;
+
+            return 0;
         }
 
     }
@@ -479,7 +481,7 @@ static int _lex_minus(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
         lex->read_pos++;
         *pword = w;
     }
-    free(c_next);
+
     free(c);
     c_next = NULL;
     c = NULL;
