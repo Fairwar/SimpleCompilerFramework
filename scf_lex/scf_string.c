@@ -125,7 +125,7 @@ int scf_string_cmp(const scf_string_t *s0, const scf_string_t *s1)
         return 1;
     }
     else
-        return strcmp(s0, s1);
+        return strcmp(s0->data, s1->data);
 }
 int scf_string_cmp_cstr(const scf_string_t *s, const char *str)
 {
