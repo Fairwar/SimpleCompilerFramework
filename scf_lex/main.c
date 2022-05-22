@@ -4,7 +4,7 @@ int main(){
     scf_lex_t** plex = malloc(sizeof(scf_lex_t*));
     scf_lex_word_t** pword = malloc(sizeof(scf_lex_word_t*));
 
-    char* path = "test.txt";
+    char* path = "./test.txt";
 
     if(scf_lex_open(plex,path)==-1){
         printf("文件打开失败\n");
@@ -19,7 +19,7 @@ int main(){
                 scf_list_t * h = scf_list_head(l);
                 scf_lex_error_t* e = scf_list_data(h, scf_lex_error_t, list);
                 scf_list_del(&e->list);
-                printf("file:%s, line:%d, pos:%d, %s\n", e->file, e->line, e->pos, e->message->data);
+                printf("file:%s, line:%d, pos:%d, %s\n", e->file->data, e->line, e->pos, e->message->data);
                 scf_lex_error_free(e);
         }
         }

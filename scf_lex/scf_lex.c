@@ -702,7 +702,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         if( c_next->c == 'x' ){
             //16 进制
 
-            free(c_next->c);
+            free(c_next);
             c_next = NULL;
 
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_INT);
@@ -724,7 +724,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     assert(c_next);
                 }
 
-                if( !isalpha(c_next->c) && (c_next !='$') ){
+                if( !isalpha(c_next->c) && (c_next->c !='$') ){
                     // 符合16进制数要求
                     _lex_push_char(lex,c_next);
                     c_next = NULL;
@@ -767,7 +767,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         } else if( c_next->c >= '0' && c_next->c <= '7' ){
             //8 进制
 
-            free(c_next->c);
+            free(c_next);
             c_next = NULL;
 
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_INT);
@@ -777,9 +777,9 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             c_next = _lex_pop_char(lex);
             assert(c_next);
             
-            if(c_next >= '0' && c_next <= '7'){
+            if(c_next->c >= '0' && c_next->c <= '7'){
 
-                while( c_next >= '0' && c_next <= '7' ){
+                while( c_next->c >= '0' && c_next->c <= '7' ){
                     scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
 
                     free(c_next);
@@ -788,8 +788,8 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     assert(c_next);
                 }
 
-                if( !isalpha(c_next->c) && !(c_next !='$') 
-                 && c_next->c!='8' && c_next != '9' ){
+                if( !isalpha(c_next->c) && !(c_next->c !='$') 
+                 && c_next->c!='8' && c_next->c != '9' ){
                     // 符合8进制数要求
                     _lex_push_char(lex,c_next);
                     c_next = NULL;
@@ -885,6 +885,7 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
 
             *pword = w;
             return 0;
+ 
         }
-    }
+   }
 }
