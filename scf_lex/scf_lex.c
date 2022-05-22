@@ -893,7 +893,7 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
             scf_list_add_tail(&lex->error_list_head,&e->list);
 
             c1 = _lex_pop_char(lex);
-            while(isalnum(c1->c) || c1->c =='.' ){
+            while(isalnum(c1->c) || c1->c == '_' || c1->c == '$'){
                 c1 = _lex_pop_char(lex);
             }
 
