@@ -20,7 +20,7 @@ int main(){
                 scf_list_t * h = scf_list_head(l);
                 scf_lex_error_t* e = scf_list_data(h, scf_lex_error_t, list);
                 scf_list_del(&e->list);
-                printf("\n<file:\"%s\", line:%d, pos:%d, %s>\n",
+                printf("< file:\"%s\", line:%d, pos:%d, ERROR:%s> \n",
                          e->file->data, e->line, e->pos, e->message->data);
                 scf_lex_error_free(e);
             }
@@ -28,10 +28,10 @@ int main(){
         else
         {
             if((*pword)->type >= SCF_LEX_WORD_ID){
-                printf(" < id , %s >",(char*)((*pword)->text->data));
+                printf("< id , %s >\n",(char*)((*pword)->text->data));
             }
             else{
-                printf(" < %s >",(char*)((*pword)->text->data));
+                printf("< %s >\n",(char*)((*pword)->text->data));
             }
             //scf_lex_word_free(*pword);
         }
