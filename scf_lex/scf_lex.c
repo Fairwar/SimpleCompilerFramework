@@ -523,6 +523,8 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
                 else if(j>0)
                 {
                     flag=1;
+                    i--;
+                    _lex_push_char(lex, c_next);
                     break;
                 }
                 else
@@ -631,6 +633,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         c = NULL;
 
         c = _lex_pop_char(lex);
+        assert(c);
         while(isdigit(c->c)){
             //整数部分
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
@@ -642,15 +645,35 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         }
 
         if(c->c == '.'){
-            //小数部分
+            //
+            scf_lex_char_t* c1=_lex_pop_char(lex);
+            if(c1->c == '.'){
+                _lex_push_char(lex,c1);
+                _lex_push_char(lex,c);
+                c1 = NULL;
+                c = NULL;
+                if(!_is_overflow(w,10)){
+                    *pword = w;
+                    return 0;
+                }
+                else{
+
+                    return -1;
+                }
+
+                return 0;
+            }
+            _lex_push_char(lex,c1);
+            c1=NULL;
+
             w->type = SCF_LEX_WORD_KEY_FLOAT;
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
             free(c);
             c = NULL;
+
             c = _lex_pop_char(lex);
             assert(c);
-
             while(isdigit(c->c)){
                 scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
@@ -667,9 +690,9 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
 
             free(c);
             c = NULL;
+
             c = _lex_pop_char(lex);
             assert(c);
-
             while(isdigit(c->c)){
                 scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
@@ -680,13 +703,19 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             }
 
         }
+        //最后一个 非10进制类整数/浮点/科学记数法符号 压栈
+        _lex_push_char(lex,c);
 
         //溢出检查
-        if(_is_overflow(w,10)){
+        if(!_is_overflow(w,10)){
             //未溢出
+            
+            *pword = w;
+            return 0;
         }
         else{
             //溢出
+            return -1;
 
         }
     } else {
@@ -709,13 +738,13 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             assert(w);
             w->text = scf_string_cstr("0x");
 
-            int flag = 0;
             c_next = _lex_pop_char(lex);
             assert(c_next);
             
-            if(isxdigit(c_next)){
+            if(isxdigit(c_next->c)){
 
                 while( isxdigit(c_next->c) ){
+                    //是16进制字符
                     scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
 
                     free(c_next);
@@ -747,7 +776,12 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     }
                 } else {
                     // 后缀出现 非16进制 符号
-                    _is_overflow(w,16);
+                    
+                    // 最后一个 非16进制字符 压栈
+                    _lex_push_char(lex,c_next);
+
+                    
+                    //_is_overflow(w,16);   //字符转数字
                     *pword = w;     //返回合法部分
 
                     lex->read_pos += (w->text->len);
@@ -757,7 +791,8 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     return -1;
                 }
             } else {
-                lex->read_pos += (w->text->len);
+                //_lex_push_char(lex, c_next);
+                lex->read_pos += 2;
                 scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
                 e->message = scf_string_cstr("invalid hex: hex number include only 0~9 and a~f"); 
                 return -1;
@@ -767,15 +802,9 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         } else if( c_next->c >= '0' && c_next->c <= '7' ){
             //8 进制
 
-            free(c_next);
-            c_next = NULL;
-
             scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_INT);
             assert(w);
             w->text = scf_string_cstr("0");
-
-            c_next = _lex_pop_char(lex);
-            assert(c_next);
             
             if(c_next->c >= '0' && c_next->c <= '7'){
 
@@ -788,8 +817,8 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     assert(c_next);
                 }
 
-                if( !isalpha(c_next->c) && !(c_next->c !='$') 
-                 && c_next->c!='8' && c_next->c != '9' ){
+                if( !isalpha(c_next->c) && (c_next->c !='$') 
+                && c_next->c!='8' && c_next->c != '9'){
                     // 符合8进制数要求
                     _lex_push_char(lex,c_next);
                     c_next = NULL;
@@ -888,4 +917,8 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
  
         }
    }
+}
+int _is_overflow(scf_lex_word_t* w,int base)
+{
+    return 0;
 }

@@ -9,4 +9,8 @@
 #include<stdio.h>
 #include<ctype.h>
 
+#define ERROR_NOT_ENOUGH_MEMORY 12
+#define ERROR_BAD_ARGUMENTS 22
+
+
 #endif
