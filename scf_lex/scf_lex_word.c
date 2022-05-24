@@ -39,9 +39,6 @@ scf_lex_word_t* scf_lex_word_clone(scf_lex_word_t* w)
         case SCF_LEX_WORD_CONST_FLOAT:
             w1->data.f = w->data.f;
             break;
-        case SCF_LEX_WORD_CONST_DOUBLE:
-            w1->data.d = w->data.d;
-            break;
         case SCF_LEX_WORD_CONST_BOOL:
             w1->data.b = w->data.b;
             break;       

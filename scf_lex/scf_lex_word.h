@@ -98,7 +98,6 @@ enum scf_lex_words{
     SCF_LEX_WORD_KEY_STRING,    // string
     SCF_LEX_WORD_KEY_INT,       // int
     SCF_LEX_WORD_KEY_FLOAT,     // float
-    SCF_LEX_WORD_KEY_DOUBLE,    // double
     SCF_LEX_WORD_KEY_BOOL,      // bool
 
     // for new type
@@ -148,7 +147,6 @@ typedef struct
         scf_string_t*   s;  // value for string
         int             i;  // value for int
         float           f;  // value for float
-        double          d;  // value for double
         unsigned int    b;  // value foe bool
     }data;
 

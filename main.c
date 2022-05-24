@@ -1,10 +1,11 @@
-#include "scf_lex.h"
+#include "./scf_lex/scf_lex.h"
+
 
 int main(){
     scf_lex_t** plex = malloc(sizeof(scf_lex_t*));
     scf_lex_word_t** pword = malloc(sizeof(scf_lex_word_t*));
 
-    char* path = "../test.txt";
+    char* path = "./test.txt";
 
     if(scf_lex_open(plex,path)==-1){
         printf("文件打开失败\n");
@@ -21,17 +22,19 @@ int main(){
                 scf_lex_error_t* e = scf_list_data(h, scf_lex_error_t, list);
                 scf_list_del(&e->list);
                 printf("< file:\"%s\", line:%d, pos:%d, ERROR:%s> \n",
-                         e->file->data, e->line, e->pos, e->message->data);
+                         e->file->data, e->line+1, e->pos+1, e->message->data);
                 scf_lex_error_free(e);
             }
         }
         else
         {
+            printf("< file:\"%s\", line:%d, pos:%d,",
+                (char*)((*pword)->file->data),(*pword)->line+1,(*pword)->pos+1);
             if((*pword)->type >= SCF_LEX_WORD_ID){
-                printf("< id , %s >\n",(char*)((*pword)->text->data));
+                printf(" ID , %s >\n",(char*)((*pword)->text->data));
             }
             else{
-                printf("< %s >\n",(char*)((*pword)->text->data));
+                printf(" %s >\n",(char*)((*pword)->text->data));
             }
             //scf_lex_word_free(*pword);
         }

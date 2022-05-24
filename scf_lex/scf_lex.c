@@ -24,7 +24,6 @@ static scf_lex_key_word_t key_words[] =
     {"char",    SCF_LEX_WORD_KEY_CHAR},
     {"string",  SCF_LEX_WORD_KEY_STRING},
     {"float",   SCF_LEX_WORD_KEY_FLOAT},
-    {"double",  SCF_LEX_WORD_KEY_DOUBLE},
     {"bool",    SCF_LEX_WORD_KEY_BOOL},
     {"class",   SCF_LEX_WORD_KEY_CLASS},
     {"union",   SCF_LEX_WORD_KEY_UNION},
@@ -242,7 +241,7 @@ int scf_lex_pop_word(scf_lex_t* lex, scf_lex_word_t** pword)
                 return _lex_op_ll1(lex, pword, c, ops[20].t, ops[20].c1, ops[20].t1, ops[20].n);
 
             case '.':
-                return _lex_dot(lex, pword, c);
+                return _lex_op_ll1(lex, pword, c, ops[21].t, ops[21].c1, ops[21].t1, ops[21].n);
 
             case '\'':
                 return _lex_char(lex, pword, c);
@@ -552,7 +551,7 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
         }
 
         *pword = w;
-        lex->read_pos += j+1;
+        lex->read_pos += w->text->len;
         return 0;
     }
     else
@@ -570,10 +569,6 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
     return 0;
 }
 
-static int _lex_dot(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
-{
-    return _lex_op_ll1(lex, pword, c, ops[21].t, ops[21].c1, ops[21].t1, ops[21].n);
-}
 
 static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
     scf_lex_word_t* w = NULL;
@@ -645,19 +640,25 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         }
 
         if(c->c == '.'){
-            //
+            // 小数部分
             scf_lex_char_t* c1=_lex_pop_char(lex);
+
+            // 检测是否为 ".." : SCF_LEX_WORD_TO
             if(c1->c == '.'){
+                // 不是小数
                 _lex_push_char(lex,c1);
                 _lex_push_char(lex,c);
                 c1 = NULL;
                 c = NULL;
+                // 越界检测
                 if(!_is_overflow(w,10)){
+                    // 没越界返回整数部分
                     *pword = w;
                     return 0;
                 }
                 else{
-
+                    // 越界返回错误
+                    
                     return -1;
                 }
 
@@ -711,10 +712,12 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             //未溢出
             
             *pword = w;
+            lex->read_pos += w->text->len;
             return 0;
         }
         else{
             //溢出
+            lex->read_pos += w->text->len;
             return -1;
 
         }
@@ -857,6 +860,10 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     return -1;
             }
         }
+        else if(c_next=='.'){
+            // 0.开头的小数
+
+        }
     }
 /*  else {
         // 非法数
@@ -874,28 +881,33 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
 static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c)
 {
     scf_string_t* s =scf_string_cstr_len((char*)(&c->c), 1);
-    lex->read_pos++;
+    //lex->read_pos++;
 
     free(c);
-    
     c=NULL;
 
     while(1){
         scf_lex_char_t* c1 = _lex_pop_char(lex);
         if( isalnum(c1->c) || c1->c == '_'){
             scf_string_cat_cstr_len(s, (char*)(&c1->c), 1);
-            lex->read_pos++;
+            //lex->read_pos++;
             free(c1);
             c1=NULL;
         } else if(c1->c =='$') {
+            lex->read_pos += s->len;
+            scf_string_free(s);
+
             scf_lex_error_t* e = scf_lex_error_alloc(lex->file,lex->read_lines,lex->read_pos);
             e->message = scf_string_cstr("\'$\' is invalid char in identity!");
             scf_list_add_tail(&lex->error_list_head,&e->list);
 
+            lex->read_pos++;
             c1 = _lex_pop_char(lex);
             while(isalnum(c1->c) || c1->c == '_' || c1->c == '$'){
+                lex->read_pos++;
                 c1 = _lex_pop_char(lex);
             }
+            
 
             _lex_push_char(lex, c1);
             return -1;
@@ -917,7 +929,8 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
 
             w->text = s;
             s =NULL;
-
+            lex->read_pos += w->text->len;
+            
             *pword = w;
             return 0;
  
@@ -926,5 +939,6 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
 }
 int _is_overflow(scf_lex_word_t* w,int base)
 {
+    
     return 0;
 }
