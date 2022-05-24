@@ -124,7 +124,6 @@ enum scf_lex_words{
     SCF_LEX_WORD_CONST_STRING,
     SCF_LEX_WORD_CONST_INT,
     SCF_LEX_WORD_CONST_FLOAT,
-    SCF_LEX_WORD_CONST_DOUBLE,
     SCF_LEX_WORD_CONST_BOOL,
 
     // important key value

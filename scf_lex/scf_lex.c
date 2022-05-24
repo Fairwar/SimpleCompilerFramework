@@ -860,21 +860,70 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     return -1;
             }
         }
-        else if(c_next=='.'){
+        else if(c_next->c=='.'){
             // 0.开头的小数
+            scf_lex_word_t* w = scf_lex_word_alloc(lex->file,lex->read_lines,lex->read_pos,SCF_LEX_WORD_CONST_FLOAT);
+            w->text = scf_string_cstr_len("0", 1);
+                        // 小数部分
 
-        }
+            scf_lex_char_t* c1=_lex_pop_char(lex);
+
+            // 检测是否为 ".." : SCF_LEX_WORD_TO
+            if(c1->c == '.'){
+                // 不是小数
+                _lex_push_char(lex,c1);
+                _lex_push_char(lex,c_next);
+                c1 = NULL;
+                c_next = NULL;
+                // 越界检测
+                if(!_is_overflow(w,10)){
+                    // 没越界返回整数部分
+                    *pword = w;
+                    return 0;
+                }
+                else{
+                    // 越界返回错误
+                    
+                    return -1;
+                }
+
+                //return 0;
+            }
+            _lex_push_char(lex,c1);
+            c1=NULL;
+
+            scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
+
+            free(c_next);
+            c_next = NULL;
+
+            c_next = _lex_pop_char(lex);
+            assert(c_next);
+            while(isdigit(c_next->c)){
+                scf_string_cat_cstr_len(w->text, (char*)(&(c_next->c)), 1);
+                free(c_next);
+                c_next = NULL;
+                c_next = _lex_pop_char(lex);
+                assert(c_next);
+            }
+            //最后一个 非10进制类整数/浮点/科学记数法符号 压栈
+            _lex_push_char(lex,c_next);
+
+            //溢出检查
+            if(!_is_overflow(w,10)){
+                //未溢出
+            
+                *pword = w;
+                lex->read_pos += w->text->len;
+                return 0;
+            }
+            else{
+                //溢出
+                lex->read_pos += w->text->len;
+                return -1;
+            }
+        }    
     }
-/*  else {
-        // 非法数
-        scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-        e->message = scf_string_cstr("invalid number!");
-        scf_list_add_tail(&lex->error_list_head, &e->list);
-
-        *pword = w;
-        lex->read_pos += (flag+2);
-        return -1;
-    } */    
 }
 
 
