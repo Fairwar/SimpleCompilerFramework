@@ -28,13 +28,13 @@ int main(){
         }
         else
         {
-            printf("< file:\"%s\", line:%d, pos:%d,",
-                (char*)((*pword)->file->data),(*pword)->line+1,(*pword)->pos+1);
+            //printf("< file:\"%s\", line:%d, pos:%d,",
+            //    (char*)((*pword)->file->data),(*pword)->line+1,(*pword)->pos+1);
             if((*pword)->type >= SCF_LEX_WORD_ID){
-                printf(" ID , %s >\n",(char*)((*pword)->text->data));
+                printf("< ID , %s >\n",(char*)((*pword)->text->data));
             }
             else{
-                printf(" %s >\n",(char*)((*pword)->text->data));
+                printf("< %s >\n",(char*)((*pword)->text->data));
             }
             //scf_lex_word_free(*pword);
         }

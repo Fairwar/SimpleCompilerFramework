@@ -39,6 +39,7 @@ enum scf_lex_words{
     SCF_LEX_WORD_AND_ASSIGN,    // &=
     SCF_LEX_WORD_OR_ASSIGN,     // |=
     SCF_LEX_WORD_XOR_ASSIGN,    // ^=
+    SCF_LEX_WORD_COLON_ASSIGN,  // :=   //老师要求的
 
     SCF_LEX_WORD_LT,            // <
     SCF_LEX_WORD_RT,            // >
@@ -56,7 +57,7 @@ enum scf_lex_words{
 
     SCF_LEX_WORD_ARROW,         // ->
     SCF_LEX_WORD_DOT,           // .
-    SCF_LEX_WORD_TO,            // ..
+    SCF_LEX_WORD_TO,            // ..   //老师要求的
     SCF_LEX_WORD_VAR_ARGS,      // ...
 
     SCF_LEX_WORD_LB,            // {
