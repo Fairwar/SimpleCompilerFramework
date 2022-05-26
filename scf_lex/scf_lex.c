@@ -717,6 +717,13 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         }
         else{
             //溢出
+            scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+            e->message = scf_string_cstr("int overflow!");
+            scf_list_add_tail(&lex->error_list_head, &e->list);
+                        
+            *pword = w;
+            lex->read_pos += (w->text->len);
+
             lex->read_pos += w->text->len;
             return -1;
 
@@ -939,6 +946,35 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
 }
 int _is_overflow(scf_lex_word_t* w,int base)
 {
-    
+    const int len = w->text->len;
+
+
+    int num=0,value=0,overvalue=0;
+    if(len==0)
+        return 0;
+    else{
+        int i=0;
+        while(i<len&&isxdigit(w->text->data[i])){
+            if(isdigit(w->text->data[i])){
+                num=w->text->data[i]-'0';
+            }else{
+                num=w->text->data[i]-'a'+10;
+            }
+
+            overvalue=value-INT_MAX/base + (((num+1)>(base-2))?1:0);
+
+            if(num<0||num>15){
+                return -1;
+            }
+            else if (overvalue>0)
+            {
+                return -1;
+            }
+            value = value*base + num;
+            i++;
+        }
+        w->data.i=value;
+        return 0;
+    }
     return 0;
 }
