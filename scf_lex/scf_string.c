@@ -216,3 +216,49 @@ int scf_string_cat_cstr_len(scf_string_t *dst, const char *src, int len)
 
     return scf_string_cat(dst, &temp);
 }
+
+int scf_string_to_int(const scf_string_t *s, int *n, int base)
+{
+    if (!s || !s->data || !n)
+    {
+        return ERROR_BAD_ARGUMENTS;
+    }
+
+    char *endptr = NULL;
+    errno=0;
+    long int value = strtol(s->data, &endptr, base);
+    //printf("%ld",value);
+    if(errno == ERANGE||value > INT_MAX || value < INT_MIN)
+    {
+        return -1;
+    }
+    if (endptr == s->data)
+    {
+        return ERROR_BAD_ARGUMENTS;
+    }
+    *n = value;
+    return 0;
+}
+int scf_string_to_float(const scf_string_t *s, float *n)
+{
+    if (!s || !s->data || !n)
+    {
+        return ERROR_BAD_ARGUMENTS;
+    }
+
+    char *endptr = NULL;
+    errno = 0;
+    float value = strtof(s->data, &endptr);
+    if (errno == ERANGE)
+    {
+        return -1;
+    }
+    
+    if (endptr == s->data)
+    {
+        return ERROR_BAD_ARGUMENTS;
+    }
+    *n = value;
+    return 0;
+}
+

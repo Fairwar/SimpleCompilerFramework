@@ -21,26 +21,33 @@ int main(){
                 scf_list_t * h = scf_list_head(l);
                 scf_lex_error_t* e = scf_list_data(h, scf_lex_error_t, list);
                 scf_list_del(&e->list);
-                printf("\n< file:\"%s\", line:%d, pos:%d, ERROR:%s>\n",
+                printf("< file:\"%s\", line:%d, pos:%d, ERROR:%s>\n",
                          e->file->data, e->line+1, e->pos+1, e->message->data);
                 scf_lex_error_free(e);
             }
         }
         else
         {
-            //printf("< file:\"%s\", line:%d, pos:%d,",
-            //    (char*)((*pword)->file->data),(*pword)->line+1,(*pword)->pos+1);
             if((*pword)->type >= SCF_LEX_WORD_ID){
-                printf("< ID , %s >\t",(char*)((*pword)->text->data));
+                printf("< ID , %s >\n",(char*)((*pword)->text->data));
+            }else if((*pword)->type == SCF_LEX_WORD_CONST_INT){
+                printf("< INT , %d >\n",(*pword)->data.i);
+            }else if((*pword)->type == SCF_LEX_WORD_CONST_FLOAT){
+                printf("< FLOAT , %f >\n",(*pword)->data.f);
+            }else if((*pword)->type == SCF_LEX_WORD_CONST_STRING){
+                printf("< STRING , %s >\n",(*pword)->data.s->data);
+            }else if((*pword)->type == SCF_LEX_WORD_CONST_CHAR){
+                printf("< CHAR , %c >\n",(*pword)->data.c);
+            }else if((*pword)->type == SCF_LEX_WORD_CONST_BOOL){
+                printf("< BOOL , %s >\n",(*pword)->data.b?"true":"false");
+            }else{
+                printf("< %s >\n",((*pword)->text->data));
             }
-            else{
-                printf("< %s >\t",(char*)((*pword)->text->data));
-            }
-            //scf_lex_word_free(*pword);
+            scf_lex_word_free(*pword);
         }
         f = scf_lex_pop_word(*plex,pword);
     }
     scf_lex_close(*plex);
-    system("pause");
+    //system("pause");
     return 0;
 }

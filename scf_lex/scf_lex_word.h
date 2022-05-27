@@ -184,5 +184,5 @@ static inline int scf_lex_word_is_basic_type(scf_lex_word_t* w)
 scf_lex_word_t* scf_lex_word_alloc(scf_string_t* file, int line, int pos, enum scf_lex_words type);
 scf_lex_word_t* scf_lex_word_clone(scf_lex_word_t* w);
 void            scf_lex_word_free(scf_lex_word_t* w);
-
+int             scf_lex_word_set_data(scf_lex_word_t* w, scf_string_t* text, ...);
 #endif

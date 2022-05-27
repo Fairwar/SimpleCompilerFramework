@@ -652,7 +652,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 c_temp = NULL;
                 c = NULL;
                 // 越界检测
-                if(!_is_overflow(w,10)){
+                if(!scf_lex_word_set_data(w,w->text,10)){
                     // 没越界返回整数部分
                     lex->read_pos += w->text->len;
                     *pword = w;
@@ -673,7 +673,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             _lex_push_char(lex,c_temp);
             c_temp=NULL;
 
-            w->type = SCF_LEX_WORD_KEY_FLOAT;
+            w->type = SCF_LEX_WORD_CONST_FLOAT;
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
             free(c);
@@ -694,6 +694,8 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
 
         if(c->c == 'e'){
             //指数部分
+
+            w->type=SCF_LEX_WORD_CONST_FLOAT;
             scf_string_cat_cstr_len(w->text, (char*)(&(c->c)), 1);
 
             free(c);
@@ -717,7 +719,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
         _lex_push_char(lex,c);
 
         //溢出检查
-        if(!_is_overflow(w,10)){
+        if(!scf_lex_word_set_data(w,w->text,10)){
             //未溢出
             
             *pword = w;
@@ -780,7 +782,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     c = NULL;
                     
                     // 越界检查
-                    if(!_is_overflow(w,16)){
+                    if(!scf_lex_word_set_data(w,w->text,16)){
                         //没越界
                         lex->read_pos += (w->text->len);
                         *pword = w;
@@ -852,7 +854,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 c = NULL;
                     
                 // 越界检查
-                if(!_is_overflow(w,8)){
+                if(!scf_lex_word_set_data(w,w->text,8)){
                     //没越界
                     lex->read_pos += (w->text->len);
                     *pword = w;
@@ -898,7 +900,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 c1 = NULL;
                 c = NULL;
                 // 越界检测
-                if(!_is_overflow(w,10)){
+                if(!scf_lex_word_set_data(w,w->text,10)){
                     // 没越界返回整数部分
                     lex->read_pos += (w->text->len);
                     *pword = w;
@@ -936,7 +938,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 _lex_push_char(lex,c);
 
                 //溢出检查
-                if(!_is_overflow(w,10)){
+                if(!scf_lex_word_set_data(w,w->text,8)){
                     //未溢出
                     lex->read_pos += (w->text->len);
                     *pword = w;
@@ -1015,38 +1017,4 @@ static int  _lex_identity(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t
  
         }
    }
-}
-int _is_overflow(scf_lex_word_t* w,int base)
-{
-    const int len = w->text->len;
-
-
-    int num=0,value=0,overvalue=0;
-    if(len==0)
-        return 0;
-    else{
-        int i=0;
-        while(i<len&&isxdigit(w->text->data[i])){
-            if(isdigit(w->text->data[i])){
-                num=w->text->data[i]-'0';
-            }else{
-                num=w->text->data[i]-'a'+10;
-            }
-
-            overvalue=value-INT_MAX/base + (((num+1)>(base-2))?1:0);
-
-            if(num<0||num>15){
-                return -1;
-            }
-            else if (overvalue>0)
-            {
-                return -1;
-            }
-            value = value*base + num;
-            i++;
-        }
-        w->data.i=value;
-        return 0;
-    }
-    return 0;
 }

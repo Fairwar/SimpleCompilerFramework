@@ -1,5 +1,5 @@
  int? x; int _a[3][5][6], i,j,k;  float s; x:=0.75;  
- _a[i][j][k]-= 19.52 *0x291 / _A[I][K][j]
+ _a[i][j][k]-= 19.52 *1e6 / _A[I][K][j]
 
  while(i>=95) { i--; abcd$ade}
  for(j in 015..0x15) {

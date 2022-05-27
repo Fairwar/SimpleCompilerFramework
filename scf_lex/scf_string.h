@@ -26,6 +26,6 @@ int scf_string_cat(scf_string_t *dst, const scf_string_t *src);
 int scf_string_cat_cstr(scf_string_t *dst, const char *src);
 int scf_string_cat_cstr_len(scf_string_t *dst, const char *src, int len);
 
-void scf_string_to_num(scf_string_t* s, void* num);
-
+int scf_string_to_int(const scf_string_t *s, int *n, int base);
+int scf_string_to_float(const scf_string_t *s, float *f);
 #endif

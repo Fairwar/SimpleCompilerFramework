@@ -76,3 +76,15 @@ void scf_lex_word_free(scf_lex_word_t* w)
     free(w);
     w=NULL;
 }
+
+int scf_lex_word_set_data(scf_lex_word_t* w, scf_string_t* text, ...){
+        va_list ap;
+        va_start(ap, text);
+        int base = va_arg(ap, int);
+        va_end(ap);
+    if(w->type==SCF_LEX_WORD_CONST_INT){
+        return scf_string_to_int(text,&(w->data.i),base);
+    }else if(w->type==SCF_LEX_WORD_CONST_FLOAT){
+        return scf_string_to_float(text,&(w->data.f));
+    }
+}
