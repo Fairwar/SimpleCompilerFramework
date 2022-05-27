@@ -21,7 +21,7 @@ int main(){
                 scf_list_t * h = scf_list_head(l);
                 scf_lex_error_t* e = scf_list_data(h, scf_lex_error_t, list);
                 scf_list_del(&e->list);
-                printf("< file:\"%s\", line:%d, pos:%d, ERROR:%s> \n",
+                printf("\n< file:\"%s\", line:%d, pos:%d, ERROR:%s>\n",
                          e->file->data, e->line+1, e->pos+1, e->message->data);
                 scf_lex_error_free(e);
             }
@@ -31,16 +31,16 @@ int main(){
             //printf("< file:\"%s\", line:%d, pos:%d,",
             //    (char*)((*pword)->file->data),(*pword)->line+1,(*pword)->pos+1);
             if((*pword)->type >= SCF_LEX_WORD_ID){
-                printf("< ID , %s >\n",(char*)((*pword)->text->data));
+                printf("< ID , %s >\t",(char*)((*pword)->text->data));
             }
             else{
-                printf("< %s >\n",(char*)((*pword)->text->data));
+                printf("< %s >\t",(char*)((*pword)->text->data));
             }
             //scf_lex_word_free(*pword);
         }
         f = scf_lex_pop_word(*plex,pword);
     }
     scf_lex_close(*plex);
-
+    system("pause");
     return 0;
 }
