@@ -500,7 +500,7 @@ static int _lex_op_ll1(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
 
     scf_lex_word_t* w;
     int i=0,j=0,flag=0;
-
+    //int i_match=-1,j_match=-1;
     for(i=0; i<n[0] && !flag; i++){
         for(j=0; j<n[1] && !flag; j++){
             if(c1[i][j]!='\0')
@@ -585,20 +585,47 @@ static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c){
 
             w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_CHAR);
             w->data.c = _find_escape_char(c2->c);
+            w->text=s;
             lex->read_pos += 4;
 
             free(c3);
             c3 = NULL;
             free(c2);
             c2 = NULL;
+            *pword=w;
         }
         else{
             _lex_push_char(lex,c3);
             _lex_push_char(lex,c2);
 
             scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-            e->message = scf_string_cstr("No matching \'\'\'");
+            e->message = scf_string_cstr("No matching \'  \'  \'");
             
+            scf_list_add_tail(&lex->error_list_head,&e->list);
+            return -1;
+        }
+    }else{
+        scf_lex_char_t* c2 = _lex_pop_char(lex);
+        if(c2->c == '\''){
+            scf_string_cat_cstr_len(s,(char*)&(c1->c),1);
+            scf_string_cat_cstr_len(s,(char*)&(c2->c),1);
+
+            w = scf_lex_word_alloc(lex->file, lex->read_lines, lex->read_pos, SCF_LEX_WORD_CONST_CHAR);
+            w->data.c = c1->c;
+            w->text=s;
+            lex->read_pos += 3;
+
+            free(c2);
+            c2 = NULL;
+            *pword=w;
+        }
+        else{
+            //_lex_push_char(lex,c3);
+            _lex_push_char(lex,c2);
+
+            scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+            e->message = scf_string_cstr("No matching \'  \'  \'");
+
             scf_list_add_tail(&lex->error_list_head,&e->list);
             return -1;
         }
@@ -715,30 +742,55 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
             }
 
         }
-        //最后一个 非10进制类整数/浮点/科学记数法符号 压栈
-        _lex_push_char(lex,c);
 
-        //溢出检查
-        if(!scf_lex_word_set_data(w,w->text,10)){
-            //未溢出
-            
-            *pword = w;
-            lex->read_pos += w->text->len;
-            return 0;
-        }
-        else{
-            //溢出
-            scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-            e->message = scf_string_cstr("int overflow!");
-            scf_list_add_tail(&lex->error_list_head, &e->list);
-                        
-            *pword = w;
+        if( !isalpha(c->c) && c->c != '$'){
+            //最后一个 非10进制类整数/浮点/科学记数法操作符 压栈
+
+            _lex_push_char(lex,c);
+
+            //溢出检查
+            if(!scf_lex_word_set_data(w,w->text,10)){
+                //未溢出
+
+                *pword = w;
+                lex->read_pos += w->text->len;
+                return 0;
+            }else{
+                //溢出
+                scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                e->message = scf_string_cstr("int overflow!");
+                scf_list_add_tail(&lex->error_list_head, &e->list);
+
+                *pword = w;
+                lex->read_pos += (w->text->len);
+
+                lex->read_pos += w->text->len;
+                return -1;
+
+            }
+        }else{
+            // 前缀正常，出现非10进制字母
+
+            // 吞掉后面的字母数字串
             lex->read_pos += (w->text->len);
+            scf_lex_word_free(w);
 
-            lex->read_pos += w->text->len;
+            // 错误记录
+            scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+            e->message = scf_string_cstr("invalid hex: need a \'  \' !");
+            scf_list_add_tail(&lex->error_list_head, &e->list);
+
+            while(isalnum(c->c)){
+                free(c);
+                c=_lex_pop_char(lex);
+                lex->read_pos++;
+            }
+            _lex_push_char(lex,c);
+
             return -1;
-
         }
+
+
     } else {
         // 首字符为 0
 
@@ -776,7 +828,7 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     assert(c);
                 }
 
-                if( !isxdigit(c->c) && (c->c !='$') ){
+                if( !isalpha(c->c) && (c->c !='$') ){
                     // 遇到操作符
                     _lex_push_char(lex,c);
                     c = NULL;
@@ -802,17 +854,19 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                     // 吞掉后面的字母数字串
                     lex->read_pos += (w->text->len);
                     scf_lex_word_free(w);
+
+                    // 错误记录
+                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                    e->message = scf_string_cstr("invalid hex: need a \'  \' !");
+                    scf_list_add_tail(&lex->error_list_head, &e->list);
+
                     while(isalnum(c->c)){
                         free(c);
                         c=_lex_pop_char(lex);
                         lex->read_pos++;
                     }
                     _lex_push_char(lex,c);
-                    
-                    // 错误记录
-                    scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                    e->message = scf_string_cstr("invalid hex: need a \' \' !");
-                    scf_list_add_tail(&lex->error_list_head, &e->list);
+
                     return -1;
                 }
             } else {
@@ -872,8 +926,13 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 // 后缀出现 非8进制 符号
 
                 // 吞掉字母数字串
-                scf_lex_word_free(w);
                 lex->read_pos += (w->text->len);
+                scf_lex_word_free(w);
+
+                scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
+                e->message = scf_string_cstr("invalid oct: need a \'  \' !");
+                scf_list_add_tail(&lex->error_list_head, &e->list);
+
                 while(isalnum(c->c)){
                     free(c);
                     c=_lex_pop_char(lex);
@@ -881,9 +940,6 @@ static int  _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* 
                 }
                 _lex_push_char(lex,c);
 
-                scf_lex_error_t* e = scf_lex_error_alloc(lex->file, lex->read_lines, lex->read_pos);
-                e->message = scf_string_cstr("invalid oct: need a \' \' !");
-                scf_list_add_tail(&lex->error_list_head, &e->list);
                 return -1;
             }
         }
